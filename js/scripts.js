@@ -26,21 +26,25 @@ Board.prototype.allSpacesMarked = function(board) {
   return bool;
 }
 Board.prototype.IsCompleted = function(board, player) {
-  const options = [[1,2,3],[4,5,6],[7,8,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9],[1,5,9]]
+  const options = [[1,2,3],[6,5,4],[7,8,9],[3,5,7],[4,1,7],[2,5,8],[9,6,3],[5,1,9]]
   for (let i = 0; i < options.length; i++) {
-    let count = 0;
-    options[i].forEach(spaceId => {
-      const space = board.findSpace(spaceId);
-      if(space.isMarked){
-        if(space.player === player){
-          count++
+    const firstSpace = board.findSpace(options[i][0])
+    if(firstSpace.isMarked === true && firstSpace.player === player) {
+      let count = 0;
+      options[i].forEach(spaceId => {
+        console.log(spaceId)
+        const space = board.findSpace(spaceId);
+        if(space.isMarked){
+          if(space.player === player){
+            count++
+          }
         }
+      });
+      if(count === 3){
+        colorSquares(options[i]);
+        return 1;
+        break;
       }
-    });
-    if(count === 3){
-      colorSquares(options[i]);
-      return 1;
-      break;
     }
   }
   if(board.allSpacesMarked(board)){
