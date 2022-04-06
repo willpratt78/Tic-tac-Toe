@@ -9,14 +9,10 @@ Board.prototype.findSpace = function(id) {
   return false;
 };
 
-Board.prototype.addSpace = function(space) {
-  this.spaces[space.id] = space;
-};
-
 Board.prototype.buildSpaceObjects = function() {
   for (let i = 1; i < 10; i++) {
     const space = new Space(i, false)
-    this.addSpace(space);    
+    this.spaces[space.id] = space;
   }
 }
 Board.prototype.allSpacesMarked = function(board) {
@@ -42,6 +38,7 @@ Board.prototype.IsCompleted = function(board, player) {
       }
     });
     if(count === 3){
+      colorSquares(options[i]);
       return 1;
       break;
     }
@@ -63,7 +60,6 @@ Space.prototype.markSpace = function(player) {
 }
 
 function Player(mark, isTurn) {
-
   this.mark = mark
   this.isTurn = isTurn
 }
@@ -73,15 +69,13 @@ Player.prototype.makeMark = function() {
 }
 
 Player.prototype.pickSpace = function(board, computer) {
-  if(board.allSpacesMarked(board) === false) {
-    for (let i = 0; i < 100; i++) {
-    const randomNumber = Math.floor(Math.random() * 9) + 1;
-    const space = board.findSpace(randomNumber)
-    if(space.isMarked === false){
-      space.markSpace("computer")
-      return space.id
-    }
-    }
+  for (let i = 0; i < 100; i++) {
+  const randomNumber = Math.floor(Math.random() * 9) + 1;
+  const space = board.findSpace(randomNumber)
+  if(space.isMarked === false){
+    space.markSpace("computer")
+    return space.id
+  }
   }
 }
 
@@ -99,11 +93,11 @@ function WriteMark(id, player) {
   if(isCompleted === 1 || isCompleted === 2) {
     gameOver("You", isCompleted)
   }else {
-    const spaceToMarkId = computer.pickSpace(board, computer);
-    computerWriteMark(spaceToMarkId, computer)
+    const spaceToMarkId = computer.pickSpace(board);
+    computerWriteMark(spaceToMarkId)
   }
 }
-function computerWriteMark(id, computer) {
+function computerWriteMark(id) {
   $("#" + id).text(computer.makeMark())
   $("#" + id).prop("disabled", true)
   const isCompleted = board.IsCompleted(board, "computer")
@@ -112,13 +106,18 @@ function computerWriteMark(id, computer) {
   }
 }
 function gameOver(winner, isCompleted) {
+  $(".game-space").prop("disabled", true)
   if(isCompleted === 1){
     $("#game-over-output").text("GAME OVER " + winner + " Won!");
   }else {
     $("#game-over-output").text("Tie");
   }
 }
-
+function colorSquares(array) {
+  array.forEach((id) => {
+    $("#" + id).addClass("color")
+  })
+}
 $(document).ready(function() {
   $(".game-space").click(function() {
     const id = $(this).attr("id");
