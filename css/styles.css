@@ -11,10 +11,31 @@
   margin: 0;
   font-size: 30px;
 }
+.game-space:hover{
+  background-color: rgb(176, 188, 201);
+}
 .color {
-  background-color: yellow;
+  background-color: rgb(176, 188, 201);
 }
 h1 {
   text-align: center;
+}
+#menu {
+  
+}
+.flex-menu {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  text-align: center;
+  margin: auto; 
+}
+.btn {
+  background-color: rgb(176, 188, 201);
+  border: 1px solid black;
+  margin-top: 5px;
+}
+.hidden {
+  display: none;
 }
 
