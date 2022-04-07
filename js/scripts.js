@@ -1,3 +1,12 @@
+function loop(array, number) {
+  let bool;
+  array.forEach(num => {
+    if(parseInt(num) === parseInt(number)){
+      return true;
+    }
+  });
+}
+
 function Board() {
   this.spaces= {}
 }
@@ -82,7 +91,7 @@ Player.prototype.makeMark = function() {
   return this.mark
 }
 
-Player.prototype.pickSpace = function(board, computer) {
+Player.prototype.pickSpaceEasy = function(board, computer) {
   for (let i = 0; i < 100; i++) {
   const randomNumber = Math.floor(Math.random() * 9) + 1;
   const space = board.findSpace(randomNumber)
@@ -90,6 +99,55 @@ Player.prototype.pickSpace = function(board, computer) {
     space.markSpace(computer)
     return space.id
   }
+  }
+}
+
+Player.prototype.pickSpaceHard = function(id, board, computer, player, computerLastMove) {
+  const options = [[1,2,3],[6,5,4],[7,8,9],[3,5,7],[4,1,7],[2,5,8],[9,6,3],[5,1,9]]
+  for (let i = 0; i < options.length; i++) {
+    computerCount = 0;
+    if(options[i].includes(parseInt(computerLastMove))){
+      options[i].forEach((spaceId) => {
+        const space = board.findSpace(spaceId);
+        if(space.isMarked && space.player === computer.name){
+          computerCount++
+        }
+      })
+    }
+    if(computerCount === 2) {
+      console.log("Going for Win")
+      for (let x = 0; x < options[i].length; x++) {
+        const space = board.findSpace(options[i][x]);
+        if(!space.isMarked){
+          return space.id;
+        }
+      }
+    }
+    let count = 0;
+    if(options[i].includes(parseInt(id))){
+      options[i].forEach((spaceId) => {
+        const space = board.findSpace(spaceId);
+        if(space.isMarked && space.player === player.name){
+          count++
+        }
+      })
+    }
+    if(count === 2) {
+      console.log("Going for Block")
+      for (let x = 0; x < options[i].length; x++) {
+        const space = board.findSpace(options[i][x]);
+        if(!space.isMarked){
+          return space.id;
+        }
+      }
+    }
+  }
+  const space5 = board.findSpace(5)
+  if(!space5.isMarked){
+    return space5.id
+  }else {
+    console.log("Picking Random")
+    return computer.pickSpaceEasy(board, computer)
   }
 }
 // Ui Logic
@@ -105,19 +163,24 @@ function WriteMark(id, board, player, mode, player2) {
   if(isCompleted === 1 || isCompleted === 2) {
     gameOver(player.name, isCompleted)
   }else if(mode === "easy") {
-    const spaceToMarkId = player2.pickSpace(board, player2);
+    const spaceToMarkId = player2.pickSpaceEasy(board, player2);
     computerWriteMark(spaceToMarkId, player2, board)
   }else if(mode === "two-players"){
     player.turnChange();
     player2.turnChange();
+  }else if(mode === "hard") {
+    const spaceToMarkId = player2.pickSpaceHard(id, board, player2, player, player2.lastValue )
+    const space = board.findSpace(spaceToMarkId);
+    space.markSpace(player2);
+    computerWriteMark(spaceToMarkId, player2, board)
   }
 }
 
 function computerWriteMark(id, computer, board) {
+  computer.lastValue.push(id);
   $("#" + id).text(computer.makeMark())
   $("#" + id).prop("disabled", true)
   const isCompleted = board.IsCompleted(board, computer)
-  console.log(isCompleted);
   if(isCompleted === 1 || isCompleted === 2) {
     gameOver("Computer", isCompleted)
   }
@@ -148,6 +211,7 @@ $(document).ready(function() {
     let player = new Player("X", true, " Player 1");
     let player2 = new Player("O", false, " Player 2");
     let computer = new Player("O", false, "Computer");
+    computer.lastValue = [];
     $(".game-space").click(function() {
         const id = $(this).attr("id");
         if(mode === "easy"){
@@ -165,4 +229,6 @@ $(document).ready(function() {
       $("#" + id).prop("disabled", true)
     })
   })
-})
+});
+
+
